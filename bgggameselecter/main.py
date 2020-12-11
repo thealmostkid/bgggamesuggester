@@ -11,6 +11,7 @@ import requests
 from twilio.twiml.messaging_response import MessagingResponse
 
 TOTAL_SELECTED = 5
+DESCRIPTION = 'pick board games to play from your boardgamegeek collection'
 HELP = 'FORMAT: "BGGUSER NUMPLAYERS(OPTIONAL) IMAGES(OPTIONAL)"'
 HELP_CMD = 'usage'
 IMAGES_CMD = 'images'
@@ -145,12 +146,14 @@ def MakeHandlerClassFromArgv():
             resp = MessagingResponse()
             images = False
             if len(parts) < 1:
+                resp.message(DESCRIPTION)
                 resp.message(HELP)
                 self.wfile.write(str(resp).encode('utf-8'))
                 return
             if len(parts) >= 1:
                 user = str(parts[0])
                 if user.lower() == HELP_CMD.lower():
+                    resp.message(DESCRIPTION)
                     resp.message(HELP)
                     self.wfile.write(str(resp).encode('utf-8'))
                     return
@@ -170,6 +173,7 @@ def MakeHandlerClassFromArgv():
             selections = run_app(fetch_games(user), players)
             if len(selections) < 1:
                 resp.message("No games with status \"owned\" found in %s's collection" % user)
+                resp.message(DESCRIPTION)
                 resp.message(HELP)
             else:
                 for entry in selections:
