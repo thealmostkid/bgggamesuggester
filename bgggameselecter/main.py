@@ -170,9 +170,9 @@ def MakeHandlerClassFromArgv():
                     if 'user' in requested:
                         body = ''.join(requested['user'])
                         if 'players' in requested:
-                            body = ' '.join(body, ''.join(requsted['players']))
+                            body = ' '.join([body, ''.join(requested['players'])])
                         if 'images' in requested:
-                            body = ' '.join(body, 'images')
+                            body = ' '.join([body, 'images'])
 
             parts = body.split()
 
