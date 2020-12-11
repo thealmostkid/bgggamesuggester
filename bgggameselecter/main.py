@@ -87,7 +87,6 @@ def twilio_response(name, link):
     return resp
 
 def read_games(user):
-    print(('U: %s' % user))
     games = dict()
     try:
         with open('%s.json' % user) as f:
@@ -97,14 +96,10 @@ def read_games(user):
     return games
 
 def fetch_games(user):
-    print(('U: "%s"' % user))
     url = 'https://bgg-json.azurewebsites.net/collection/%s?grouped=true' % user
     print(('url: "%s"' % url))
     r = requests.get(url = url, params = dict()) 
     print(('status: %d' % r.status_code))
-    print(('headers: %s' % r.headers))
-    #print(('json: %s' % r.json()))
-    #print(('text: %s' % r.text))
     return r.json() 
 
 def run_app(games, players):
@@ -126,7 +121,10 @@ def MakeHandlerClassFromArgv():
             body = self.rfile.read(length).decode('utf-8')
             self.send_response(200)
             self.end_headers()
+
+            print(('BODY: "%s"' % body))
             parts = body.split()
+            print(('PARTS: %s' % parts))
             user = None
             players = 3
 
@@ -175,8 +173,4 @@ def main():
     runServer(handler_class=HandlerClass, port=port)
 
 if __name__ == '__main__':
-    for entry in run_app(fetch_games('thealmostkid'), 3):
-        name, link = entry.split(',')
-        print(('%s' % twilio_response(name, link)))
-
     main()
