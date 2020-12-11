@@ -137,6 +137,7 @@ def MakeHandlerClassFromArgv():
 <label for="players">Number of Players:</label>
 <input type="text" id="players" name="players">
 <br>
+<input type="hidden" id="images" name="images" value="images">
 <input type="submit" value="Submit">
 </form>
 </body>
