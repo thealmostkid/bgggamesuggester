@@ -117,7 +117,7 @@ def MakeHandlerClassFromArgv():
         # POST
         #
         def do_POST(self):
-            self.send_header('Content-Type', 'application/xml')
+            #self.send_header('Content-Type', 'application/xml')
             self.send_response(200)
             self.end_headers()
 
