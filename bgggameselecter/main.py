@@ -3,8 +3,9 @@ import http.server
 import heapq
 import json
 import random
-import requests
 import sys
+
+import requests
 
 from twilio.twiml.messaging_response import MessagingResponse
 
