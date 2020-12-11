@@ -167,6 +167,12 @@ def MakeHandlerClassFromArgv():
                     body = ''.join(requested['Body'])
                 except KeyError:
                     body = ''
+                    if 'user' in requested:
+                        body = ''.join(requested['user'])
+                        if 'players' in requested:
+                            body = ' '.join(body, ''.join(requsted['players']))
+                        if 'images' in requested:
+                            body = ' '.join(body, 'images')
 
             parts = body.split()
 
