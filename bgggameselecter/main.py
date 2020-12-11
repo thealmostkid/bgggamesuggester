@@ -92,11 +92,23 @@ def read_games(user):
 def fetch_games(user):
     url = 'https://bgg-json.azurewebsites.net/collection/%s?grouped=true' % user
     r = requests.get(url = url, params = dict()) 
+    print(('BGG USER: %s STATUS: %d' % (user, r.status_code)))
+    if r.status_code == 500:
+        # if the collection is too big "grouped" fails
+        url = 'https://bgg-json.azurewebsites.net/collection/%s' % user
+        r = requests.get(url = url, params = dict()) 
+
+    if r.status_code == 404:
+        raise KeyError('unknown user %s' % user)
     if r.status_code != 200:
         return []
-    return r.json() 
+    body = r.json() 
+    if 'message' in body:
+        raise ValueError
+    return body
 
 def run_app(games, players):
+    print(('FOUND: %d' % len(games)))
     ownd = trim(games, players)
     selected = select_weighted(ownd)
     return selected
@@ -151,12 +163,14 @@ def MakeHandlerClassFromArgv():
                             players = int(cmd)
                         except ValueError:
                             resp.message('BAD NUMBER FOR PLAYERS: "USER PLAYERS<INT>(OPTIONAL)')
+                            resp.message(HELP)
                             self.wfile.write(str(resp).encode('utf-8'))
                             return
 
             selections = run_app(fetch_games(user), players)
             if len(selections) < 1:
                 resp.message('NO GAMES')
+                resp.message(HELP)
             else:
                 for entry in selections:
                     name, link = entry.split(',')
