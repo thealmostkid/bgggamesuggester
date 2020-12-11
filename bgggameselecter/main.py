@@ -81,12 +81,6 @@ def select_random_sorted(games):
             break
     return results
 
-def twilio_response(name, link):
-    resp = MessagingResponse()
-    msg = resp.message(name)
-    msg.media(link)
-    return resp
-
 def read_games(user):
     games = dict()
     try:
@@ -120,18 +114,17 @@ def MakeHandlerClassFromArgv():
         # POST
         #
         def do_POST(self):
-            print(('HEADERS: %s' % self.headers))
-            length = int(self.headers['Content-Length'])
-            encoding = self.headers['Content-Type']
-            print(('ENCODING: %s' % encoding))
-
-            body = self.rfile.read(length).decode('utf-8')
-            self.send_header('Content-Type', 'text/xml')
+            self.send_header('Content-Type', 'application/xml')
             self.send_response(200)
             self.end_headers()
 
+            length = int(self.headers['Content-Length'])
+            body = self.rfile.read(length).decode('utf-8')
             user = None
             players = 3
+
+            encoding = self.headers['Content-Type']
+            print(('ENCODING: %s' % encoding))
             if encoding == 'application/x-www-form-urlencoded':
                 print('It is twilio')
                 requested = urllib.parse.parse_qs(body)
@@ -166,7 +159,7 @@ def MakeHandlerClassFromArgv():
                 for entry in selections:
                     name, link = entry.split(',')
                     msg = resp.message(name)
-                    msg.media(link)
+                    #msg.media(link)
             self.wfile.write(str(resp).encode('utf-8'))
 
     # return the whole inline class
