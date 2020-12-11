@@ -12,6 +12,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 
 TOTAL_SELECTED = 3
 SERVER_PORT = 7890
+HELP = 'FORMAT: "USER NUMPLAYERS(OPTIONAL) IMAGES(OPTIONAL)"'
 
 def game_weight(game, games):
     score = 0
@@ -92,19 +93,14 @@ def read_games(user):
 
 def fetch_games(user):
     url = 'https://bgg-json.azurewebsites.net/collection/%s?grouped=true' % user
-    print(('url: "%s"' % url))
     r = requests.get(url = url, params = dict()) 
-    print(('status: %d' % r.status_code))
     if r.status_code != 200:
         return []
     return r.json() 
 
 def run_app(games, players):
-    print(('P: %d' % players))
     ownd = trim(games, players)
-    print(('own: %d' % len(ownd)))
     selected = select_weighted(ownd)
-    print(('selected: %d' % len(selected)))
     return selected
 
 def MakeHandlerClassFromArgv():
@@ -127,43 +123,49 @@ def MakeHandlerClassFromArgv():
             players = 3
 
             encoding = self.headers['Content-Type']
-            print(('ENCODING: %s' % encoding))
             if encoding == 'application/x-www-form-urlencoded':
-                print('It is twilio')
                 requested = urllib.parse.parse_qs(body)
                 try:
                     body = ''.join(requested['Body'])
                 except KeyError:
                     body = ''
 
-            print(('BODY: "%s"' % body))
             parts = body.split()
-            print(('PARTS: %s' % parts))
 
             resp = MessagingResponse()
+            images = False
             if len(parts) < 1:
-                msg = resp.message('FORMAT: "USER PLAYERS(OPTIONAL)')
+                resp.message(HELP)
                 self.wfile.write(str(resp).encode('utf-8'))
                 return
             if len(parts) >= 1:
                 user = str(parts[0])
-            if len(parts) >= 2:
-                try:
-                    players = int(parts[1])
-                except ValueError:
-                    msg = resp.message('BAD NUMBER FOR PLAYERS: "USER PLAYERS<INT>(OPTIONAL)')
+                if user.lower() == 'help':
+                    resp.message(HELP)
                     self.wfile.write(str(resp).encode('utf-8'))
                     return
+            if len(parts) >= 2:
+                for cmd in parts[1:]:
+                    if cmd.lower() == 'images':
+                        images = True
+                    else:
+                        try:
+                            players = int(cmd)
+                        except ValueError:
+                            resp.message('BAD NUMBER FOR PLAYERS: "USER PLAYERS<INT>(OPTIONAL)')
+                            self.wfile.write(str(resp).encode('utf-8'))
+                            return
 
             selections = run_app(fetch_games(user), players)
             if len(selections) < 1:
-                msg = resp.message('NO GAMES')
+                resp.message('NO GAMES')
             else:
                 for entry in selections:
                     name, link = entry.split(',')
-                    msg = resp.message(name)
-                    msg.media(link)
-            print(('RESP: %s' % resp))
+                    if images:
+                        resp.message().media(link)
+                    else:
+                        resp.message(name)
             self.wfile.write(str(resp).encode('utf-8'))
 
     # return the whole inline class
