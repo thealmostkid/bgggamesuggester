@@ -126,6 +126,7 @@ def MakeHandlerClassFromArgv():
             print(('ENCODING: %s' % encoding))
 
             body = self.rfile.read(length).decode('utf-8')
+            self.send_header('Content-Type', 'text/xml')
             self.send_response(200)
             self.end_headers()
 
