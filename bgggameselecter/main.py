@@ -118,7 +118,31 @@ def MakeHandlerClassFromArgv():
     '''
     Class Factory to wrap variables in Custom Handler.
     '''
-    class ScrambleServer(http.server.BaseHTTPRequestHandler, object):
+    class BGGGameSuggesterServer(http.server.BaseHTTPRequestHandler, object):
+        #
+        # GET
+        #
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header('Content-type','text/html')
+            self.end_headers()
+
+            content = '''
+<html>
+<body>
+<form action="/">
+<label for="user">BGG User Name:</label>
+<input type="text" id="user" name="user">
+<br>
+<label for="players">Number of Players:</label>
+<input type="text" id="players" name="players">
+<br>
+<input type="submit" value="Submit">
+</form>
+</body>
+</html>
+'''
+            self.wfile.write(str(content).encode('utf-8'))
 
         #
         # POST
@@ -185,7 +209,7 @@ def MakeHandlerClassFromArgv():
             self.wfile.write(str(resp).encode('utf-8'))
 
     # return the whole inline class
-    return ScrambleServer
+    return BGGGameSuggesterServer
 
 def runServer(port, server_class=http.server.HTTPServer,
         handler_class=http.server.BaseHTTPRequestHandler
