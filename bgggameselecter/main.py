@@ -121,6 +121,9 @@ def MakeHandlerClassFromArgv():
             self.send_response(200)
             self.end_headers()
 
+            self.wfile.write('<?xml version="1.0" encoding="UTF-8"?><foo>hello</foo>'.encode('utf-8'))
+
+        def hidden(self):
             length = int(self.headers['Content-Length'])
             body = self.rfile.read(length).decode('utf-8')
             user = None
