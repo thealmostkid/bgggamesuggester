@@ -10,7 +10,7 @@ import requests
 
 from twilio.twiml.messaging_response import MessagingResponse
 
-TOTAL_SELECTED = 5
+TOTAL_SELECTED = 3
 SERVER_PORT = 7890
 
 def game_weight(game, games):
@@ -121,8 +121,6 @@ def MakeHandlerClassFromArgv():
             self.send_header('Content-type','application/xml')
             self.end_headers()
 
-            #self.wfile.write('<?xml version="1.0" encoding="UTF-8"?><foo>hello</foo>'.encode('utf-8'))
-
             length = int(self.headers['Content-Length'])
             body = self.rfile.read(length).decode('utf-8')
             user = None
@@ -164,7 +162,7 @@ def MakeHandlerClassFromArgv():
                 for entry in selections:
                     name, link = entry.split(',')
                     msg = resp.message(name)
-                    #msg.media(link)
+                    msg.media(link)
             print(('RESP: %s' % resp))
             self.wfile.write(str(resp).encode('utf-8'))
 
