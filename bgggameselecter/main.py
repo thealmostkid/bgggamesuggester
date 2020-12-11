@@ -4,9 +4,9 @@ import heapq
 import json
 import random
 import sys
+import urllib.parse
 
 import requests
-import urlparse
 
 from twilio.twiml.messaging_response import MessagingResponse
 
@@ -133,8 +133,11 @@ def MakeHandlerClassFromArgv():
             players = 3
             if encoding == 'application/x-www-form-urlencoded':
                 print('It is twilio')
-                requested = urlparse.parse_qs(body)
-                body = ''.join(requested['Body'])
+                requested = urllib.parse.parse_qs(body)
+                try:
+                    body = ''.join(requested['Body'])
+                except KeyError:
+                    body = ''
 
             print(('BODY: "%s"' % body))
             parts = body.split()
