@@ -102,7 +102,10 @@ def fetch_games(user):
 def run_app(games, players):
     print(('P: %d' % players))
     ownd = trim(games, players)
-    return select_weighted(ownd)
+    print(('own: %d' % len(ownd)))
+    selected = select_weighted(ownd)
+    print(('selected: %d' % len(selected)))
+    return selected
 
 def MakeHandlerClassFromArgv():
     '''
@@ -160,6 +163,7 @@ def MakeHandlerClassFromArgv():
                     name, link = entry.split(',')
                     msg = resp.message(name)
                     #msg.media(link)
+            print(('RESP: %s' % resp))
             self.wfile.write(str(resp).encode('utf-8'))
 
     # return the whole inline class
