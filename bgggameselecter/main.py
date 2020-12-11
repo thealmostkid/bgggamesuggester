@@ -118,6 +118,7 @@ def MakeHandlerClassFromArgv():
         #
         def do_POST(self):
             self.send_response(200)
+            self.send_header('Content-type','application/xml')
             self.end_headers()
 
             #self.wfile.write('<?xml version="1.0" encoding="UTF-8"?><foo>hello</foo>'.encode('utf-8'))
