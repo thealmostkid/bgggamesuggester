@@ -10,9 +10,10 @@ import requests
 
 from twilio.twiml.messaging_response import MessagingResponse
 
-TOTAL_SELECTED = 3
-SERVER_PORT = 7890
+TOTAL_SELECTED = 5
 HELP = 'FORMAT: "USER NUMPLAYERS(OPTIONAL) IMAGES(OPTIONAL)"'
+HELP_CMD = 'usage'
+IMAGES_CMD = 'images'
 
 def game_weight(game, games):
     score = 0
@@ -30,9 +31,6 @@ def is_playable(game, players):
 
 def trim(games, players):
     ownd = [ game for game in games if is_playable(game, players) ]
-    #for i, game in enumerate(games):
-    #    if game['owned']:
-    #        owned.append(game)
     expansions = list()
     for game in ownd:
         if 'expansions' in game:
@@ -140,13 +138,13 @@ def MakeHandlerClassFromArgv():
                 return
             if len(parts) >= 1:
                 user = str(parts[0])
-                if user.lower() == 'help':
+                if user.lower() == HELP_CMD.lower():
                     resp.message(HELP)
                     self.wfile.write(str(resp).encode('utf-8'))
                     return
             if len(parts) >= 2:
                 for cmd in parts[1:]:
-                    if cmd.lower() == 'images':
+                    if cmd.lower() == IMAGES_CMD.lower():
                         images = True
                     else:
                         try:
@@ -171,21 +169,21 @@ def MakeHandlerClassFromArgv():
     # return the whole inline class
     return ScrambleServer
 
-def runServer(server_class=http.server.HTTPServer,
-        handler_class=http.server.BaseHTTPRequestHandler,
-        port=SERVER_PORT):
+def runServer(port, server_class=http.server.HTTPServer,
+        handler_class=http.server.BaseHTTPRequestHandler
+        ):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
 
 def main():
-    port = SERVER_PORT
+    port = 7890
     try:
         port = int(sys.argv[2])
     except IndexError:
         pass
     HandlerClass = MakeHandlerClassFromArgv()
-    runServer(handler_class=HandlerClass, port=port)
+    runServer(port, handler_class=HandlerClass)
 
 if __name__ == '__main__':
     main()
