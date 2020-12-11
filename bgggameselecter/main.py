@@ -169,7 +169,7 @@ def MakeHandlerClassFromArgv():
 
             selections = run_app(fetch_games(user), players)
             if len(selections) < 1:
-                resp.message('NO GAMES')
+                resp.message("No games with status \"owned\" found in %s's collection" % user)
                 resp.message(HELP)
             else:
                 for entry in selections:
