@@ -130,7 +130,7 @@ def MakeHandlerClassFromArgv():
             content = '''
 <html>
 <body>
-<form action="/">
+<form action="/" method="post">
 <label for="user">BGG User Name:</label>
 <input type="text" id="user" name="user">
 <br>
@@ -156,6 +156,8 @@ def MakeHandlerClassFromArgv():
             body = self.rfile.read(length).decode('utf-8')
             user = None
             players = 3
+
+            print(('BODY: %s' % body))
 
             encoding = self.headers['Content-Type']
             if encoding == 'application/x-www-form-urlencoded':
