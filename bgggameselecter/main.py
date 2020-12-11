@@ -6,6 +6,7 @@ import random
 import sys
 
 import requests
+import urlparse
 
 from twilio.twiml.messaging_response import MessagingResponse
 
@@ -100,6 +101,8 @@ def fetch_games(user):
     print(('url: "%s"' % url))
     r = requests.get(url = url, params = dict()) 
     print(('status: %d' % r.status_code))
+    if r.status_code != 200:
+        return []
     return r.json() 
 
 def run_app(games, players):
@@ -117,16 +120,25 @@ def MakeHandlerClassFromArgv():
         # POST
         #
         def do_POST(self):
+            print(('HEADERS: %s' % self.headers))
             length = int(self.headers['Content-Length'])
+            encoding = self.headers['Content-Type']
+            print(('ENCODING: %s' % encoding))
+
             body = self.rfile.read(length).decode('utf-8')
             self.send_response(200)
             self.end_headers()
 
+            user = None
+            players = 3
+            if encoding == 'application/x-www-form-urlencoded':
+                print('It is twilio')
+                requested = urlparse.parse_qs(body)
+                body = ''.join(requested['Body'])
+
             print(('BODY: "%s"' % body))
             parts = body.split()
             print(('PARTS: %s' % parts))
-            user = None
-            players = 3
 
             resp = MessagingResponse()
             if len(parts) < 1:
