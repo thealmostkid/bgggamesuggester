@@ -11,7 +11,7 @@ import requests
 from twilio.twiml.messaging_response import MessagingResponse
 
 TOTAL_SELECTED = 5
-HELP = 'FORMAT: "USER NUMPLAYERS(OPTIONAL) IMAGES(OPTIONAL)"'
+HELP = 'FORMAT: "BGGUSER NUMPLAYERS(OPTIONAL) IMAGES(OPTIONAL)"'
 HELP_CMD = 'usage'
 IMAGES_CMD = 'images'
 
