@@ -11,6 +11,7 @@ import requests
 from twilio.twiml.messaging_response import MessagingResponse
 
 TOTAL_SELECTED = 5
+DEFAULT_PLAYERS = 3
 DESCRIPTION = 'pick board games to play from your boardgamegeek collection'
 HELP = 'FORMAT: "BGGUSER NUMPLAYERS(OPTIONAL) IMAGES(OPTIONAL)"'
 HELP_CMD = 'usage'
@@ -127,10 +128,37 @@ def MakeHandlerClassFromArgv():
             self.send_header('Content-type','text/html')
             self.end_headers()
 
+            print(('PATH: %s' % self.path))
+
+            errors = ''
+            selected = ''
+            requested = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+            print(('REQ: %s' % requested))
+            if 'user' in requested:
+                user = ''.join(requested['user'])
+                players = DEFAULT_PLAYERS
+                images = True
+                if 'players' in requested:
+                    try:
+                        players = int(''.join(requested['players']))
+                    except ValueError:
+                        errors = '<font color="red">Players must be a number</font>'
+
+                selections = run_app(fetch_games(user), players)
+                if len(selections) < 1:
+                    errors = '<font color="red">No games with status "owned" found in %s\'s collection</font><br>' % user
+                else:
+                    for entry in selections:
+                        name, link = entry.split(',')
+                        selected = ''.join([selected, '<img src="%s" alt="%s">' % (link, name)])
+                    selected = ''.join([selected, '<br>'])
+
             content = '''
 <html>
 <body>
-<form action="/" method="post">
+%s
+%s
+<form action="/" method="GET">
 <label for="user">BGG User Name:</label>
 <input type="text" id="user" name="user">
 <br>
@@ -142,21 +170,17 @@ def MakeHandlerClassFromArgv():
 </form>
 </body>
 </html>
-'''
+''' % (errors, selected)
             self.wfile.write(str(content).encode('utf-8'))
 
         #
         # POST
         #
         def do_POST(self):
-            self.send_response(200)
-            self.send_header('Content-type','application/xml')
-            self.end_headers()
-
             length = int(self.headers['Content-Length'])
             body = self.rfile.read(length).decode('utf-8')
             user = None
-            players = 3
+            players = DEFAULT_PLAYERS
 
             print(('BODY: %s' % body))
 
@@ -166,13 +190,13 @@ def MakeHandlerClassFromArgv():
                 try:
                     body = ''.join(requested['Body'])
                 except KeyError:
-                    body = ''
-                    if 'user' in requested:
-                        body = ''.join(requested['user'])
-                        if 'players' in requested:
-                            body = ' '.join([body, ''.join(requested['players'])])
-                        if 'images' in requested:
-                            body = ' '.join([body, 'images'])
+                    self.send_response(400)
+                    self.end_headers()
+                    return
+
+            self.send_response(200)
+            self.send_header('Content-type','application/xml')
+            self.end_headers()
 
             parts = body.split()
 
