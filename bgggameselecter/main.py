@@ -142,35 +142,35 @@ def MakeHandlerClassFromArgv():
                     try:
                         players = int(''.join(requested['players']))
                     except ValueError:
-                        errors = '<font color="red">Players must be a number</font>'
+                        errors = 'Players must be a number'
 
                 selections = run_app(fetch_games(user), players)
                 if len(selections) < 1:
-                    errors = '<font color="red">No games with status "owned" found in %s\'s collection</font><br>' % user
+                    errors = 'No games with status "owned" found in %s\'s collection' % user
                 else:
                     for entry in selections:
                         name, link = entry.split(',')
                         selected = ''.join([selected, '<img src="%s" alt="%s">' % (link, name)])
-                    selected = ''.join([selected, '<br>'])
 
             content = '''
 <html>
 <body>
+<font color="red">%s</font></br>
 %s
-%s
+<br>
 <form action="/" method="GET">
 <label for="user">BGG User Name:</label>
 <input type="text" id="user" name="user">
 <br>
 <label for="players">Number of Players:</label>
-<input type="text" id="players" name="players">
+<input type="text" id="players" name="players" value="%d">
 <br>
 <input type="hidden" id="images" name="images" value="images">
 <input type="submit" value="Submit">
 </form>
 </body>
 </html>
-''' % (errors, selected)
+''' % (errors, selected, DEFAULT_PLAYERS)
             self.wfile.write(str(content).encode('utf-8'))
 
         #
