@@ -10,6 +10,8 @@ import requests
 
 from twilio.twiml.messaging_response import MessagingResponse
 
+BGG_URL = 'https://boardgamegeek.com'
+GAME_URL = '%s/boardgame' % BGG_URL
 TOTAL_SELECTED = 5
 DEFAULT_PLAYERS = 3
 DESCRIPTION = 'pick board games to play from your boardgamegeek collection'
@@ -44,11 +46,14 @@ def trim(games, players):
     ownd.extend(expansions)
     return ownd
 
+def _game_string(game):
+    return '%s,%s,%s' % (game['name'], game['thumbnail'], game['gameId'])
+
 def select_weighted(games):
     results = []
     if len(games) < TOTAL_SELECTED:
         for game in games:
-            results.append('%s,%s' % (game['name'], game['thumbnail']))
+            results.append(_game_string(game))
     else:
         weighted = list()
         for i, game in enumerate(games):
@@ -59,7 +64,7 @@ def select_weighted(games):
             selected[random.choice(weighted)] = True
         for index in list(selected.keys()):
             game = games[index]
-            results.append('%s,%s' % (game['name'], game['thumbnail']))
+            results.append(_game_string(game))
     return results
 
 def select_random_sorted(games):
@@ -76,7 +81,7 @@ def select_random_sorted(games):
     while True:
         try:
             (_, game) = heapq.heappop(h)
-            results.append('%s,%s' % (game['name'], game['thumbnail']))
+            results.append(_game_string(game))
             index += 1
         except IndexError:
             break
@@ -149,8 +154,8 @@ def MakeHandlerClassFromArgv():
                     errors = 'No games with status "owned" found in %s\'s collection' % user
                 else:
                     for entry in selections:
-                        name, link = entry.split(',')
-                        selected = ''.join([selected, '<img src="%s" alt="%s">' % (link, name)])
+                        name, thumbnail, gameid = entry.split(',')
+                        selected = ''.join([selected, '<a href="%s/%s"><img src="%s" alt="%s"></a>' % (GAME_URL, gameid, thumbnail, name)])
 
             content = '''
 <html>
@@ -234,11 +239,13 @@ def MakeHandlerClassFromArgv():
                 resp.message(HELP)
             else:
                 for entry in selections:
-                    name, link = entry.split(',')
+                    name, thumbnail, gameid = entry.split(',')
+                    url = '%s/%s' % (GAME_URL, gameid)
                     if images:
-                        resp.message().media(link)
+                        resp.message(url).media(thumbnail)
                     else:
                         resp.message(name)
+                        resp.message(url)
             self.wfile.write(str(resp).encode('utf-8'))
 
     # return the whole inline class
