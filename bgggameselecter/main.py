@@ -14,7 +14,7 @@ BGG_URL = 'https://boardgamegeek.com'
 GAME_URL = '%s/boardgame' % BGG_URL
 TOTAL_SELECTED = 5
 DEFAULT_PLAYERS = 3
-DESCRIPTION = 'pick board games to play from your boardgamegeek collection'
+DESCRIPTION = 'pick board games to play from your boardgamegeek (BGG) collection'
 HELP = 'FORMAT: "BGGUSER NUMPLAYERS(OPTIONAL) IMAGES(OPTIONAL)"'
 HELP_CMD = 'usage'
 IMAGES_CMD = 'images'
@@ -242,7 +242,7 @@ def MakeHandlerClassFromArgv():
                     name, thumbnail, gameid = entry.split(',')
                     url = '%s/%s' % (GAME_URL, gameid)
                     if images:
-                        resp.message(url).media(thumbnail)
+                        resp.message().media(thumbnail)
                     else:
                         resp.message(name)
                         resp.message(url)
